@@ -84,6 +84,9 @@ import {
   guardarFavoritoEnFirestore,
   eliminarFavoritoDeFirestore,
   obtenerFavoritosDeFirestore,
+  suscribirSolicitudEnTiempoReal,
+  aceptarSolicitudEmprendedor,
+  rechazarSolicitudEmprendedor,
   FavoritoData,
   SolicitudData,
   EmprendedorData,
@@ -94,6 +97,9 @@ import { comprimirImagen } from './utils/imageCompressor';
 import { GRUPOS_UBICACIONES_GUATEMALA } from './services/guatemalaLocationService';
 import { Navbar } from './components/Navbar';
 import { AuthModal } from './components/AuthModal';
+import { MatchingCardCliente } from './components/MatchingCardCliente';
+import { MatchingCardEmprendedor } from './components/MatchingCardEmprendedor';
+import { BlindMatchingSlideUp } from './components/BlindMatchingSlideUp';
 
 const WhatsAppIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -2032,88 +2038,27 @@ export default function App() {
                       </div>
                     ) : misTrabajos.length > 0 ? (
                       <div className="space-y-3">
-                        {misTrabajos.map((trabajo, idx) => {
-                          const idSol = trabajo.ID_solicitud || trabajo.ID_Solicitud || `TRAB-${idx}`;
-                          const serv = trabajo.servicio_buscado || trabajo.Servicio_Buscado || 'Servicio profesional';
-                          const est = trabajo.estado || trabajo.Estado || 'Activo';
-                          const pres = trabajo.presupuesto || trabajo.Presupuesto || '';
-                          const ubi = trabajo.ubicacion_servicios || trabajo.Ubicacion_Servicio || '';
-                          const fecha = trabajo.fecha_estimado || trabajo.Fecha_Estimada || '';
-                          const cliente = trabajo.cliente_nombre || 'Cliente One Day';
-
-                          return (
-                            <div
-                              key={idSol}
-                              className="p-4 bg-neutral-50 border border-neutral-200 rounded-2xl space-y-2.5 hover:border-neutral-300 transition shadow-2xs"
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div>
-                                  <span className="text-[10px] font-mono font-bold text-neutral-400 block">
-                                    #{idSol}
-                                  </span>
-                                  <h4 className="text-sm font-bold text-neutral-900 leading-snug">
-                                    {serv}
-                                  </h4>
-                                  <span className="text-xs text-neutral-600 font-medium">
-                                    Cliente: {cliente}
-                                  </span>
-                                </div>
-                                <span
-                                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0 border ${
-                                    est === 'Activo'
-                                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                                      : est === 'En proceso'
-                                      ? 'bg-blue-100 text-blue-800 border-blue-300'
-                                      : est === 'Completado'
-                                      ? 'bg-purple-100 text-purple-800 border-purple-300'
-                                      : 'bg-amber-100 text-amber-800 border-amber-300'
-                                  }`}
-                                >
-                                  {est}
-                                </span>
-                              </div>
-
-                              {(trabajo.detalles_necesidad || trabajo.Detalles_Necesidad) && (
-                                <p className="text-xs text-neutral-600 line-clamp-2 leading-relaxed bg-white/70 p-2.5 rounded-xl border border-neutral-200/60">
-                                  {trabajo.detalles_necesidad || trabajo.Detalles_Necesidad}
-                                </p>
-                              )}
-
-                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-neutral-500 pt-0.5">
-                                {pres && (
-                                  <span>
-                                    Presupuesto: <strong className="text-neutral-800">{pres}</strong>
-                                  </span>
-                                )}
-                                {ubi && <span>• {ubi}</span>}
-                                {fecha && <span>• Fecha: {fecha}</span>}
-                              </div>
-
-                              <div className="pt-2 flex items-center justify-between border-t border-neutral-200/60 text-xs">
-                                <button
-                                  type="button"
-                                  onClick={() => setDetalleSolicitudActividad(trabajo)}
-                                  className="font-semibold text-neutral-900 underline cursor-pointer"
-                                >
-                                  Ver detalles
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={async () => {
-                                    const nuevo = est === 'Pendiente' ? 'En proceso' : est === 'En proceso' ? 'Completado' : 'Activo';
-                                    await handleCambiarEstadoSolicitud(nuevo as any);
-                                    setMisTrabajos((prev) =>
-                                      prev.map((t) => ((t.ID_solicitud || t.ID_Solicitud) === idSol ? { ...t, estado: nuevo, Estado: nuevo } : t))
-                                    );
-                                  }}
-                                  className="px-3 py-1 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-[11px] font-medium transition cursor-pointer shadow-2xs"
-                                >
-                                  {est === 'Completado' ? 'Marcar activo' : 'Avanzar estado'}
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
+                        {misTrabajos.map((trabajo, idx) => (
+                          <MatchingCardEmprendedor
+                            key={trabajo.ID_solicitud || trabajo.ID_Solicitud || `TRAB-${idx}`}
+                            solicitud={trabajo}
+                            miIdEmprendedor={emprendedorCuenta?.ID_Emprendedor || ''}
+                            miNombre={emprendedorCuenta?.Nombre || ''}
+                            onChatClick={() => console.log('Chat placeholder')}
+                            onEstadoCambio={(idS, nuevoE) => {
+                              setMisTrabajos((prev) =>
+                                prev.map((t) =>
+                                  ((t.ID_solicitud || t.ID_Solicitud) === idS
+                                    ? { ...t, estado: nuevoE, Estado: nuevoE }
+                                    : t)
+                                )
+                              );
+                              if (nuevoE === 'Rechazado') {
+                                setTimeout(() => cargarActividad(), 800);
+                              }
+                            }}
+                          />
+                        ))}
                       </div>
                     ) : (
                       <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 py-16 px-4">
@@ -3189,7 +3134,7 @@ export default function App() {
           </div>
         ) : currentScreen === 'solicitud_en_proceso' ? (
           /* ============================================================== */
-          /* PANTALLA: SOLICITUD EN PROCESO                                 */
+          /* PANTALLA: SOLICITUD EN PROCESO (Blind Matching Slide-Up)      */
           /* ============================================================== */
           <div className="flex-1 flex flex-col justify-start py-2 animate-in fade-in duration-150">
             <div className="space-y-5">
@@ -3210,148 +3155,58 @@ export default function App() {
                   <CheckCircle2 size={22} />
                 </div>
                 <h2 className="text-2xl font-normal text-neutral-900 tracking-tight">
-                  Solicitud en proceso
+                  Solicitud enviada
                 </h2>
+                <p className="text-xs text-neutral-500">
+                  Estamos buscando al emprendedor ideal para ti.
+                </p>
               </div>
 
               {solicitudCreada && (
-                <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-neutral-200">
-                    <div>
-                      <span className="text-[11px] text-neutral-400 block">ID_solicitud</span>
-                      <span className="font-mono text-xs font-bold text-neutral-900 bg-white px-2 py-0.5 rounded-full border border-neutral-300">
-                        #{solicitudCreada.ID_solicitud || solicitudCreada.ID_Solicitud}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[11px] text-neutral-400 block">ID_cliente</span>
-                      <span className="font-mono text-xs font-bold text-neutral-700 bg-white px-2 py-0.5 rounded-full border border-neutral-200">
-                        {solicitudCreada.ID_cliente || solicitudCreada.ID_Cliente}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <span className="text-[11px] text-neutral-400 block">Servicio buscado</span>
-                    <span className="text-xs font-semibold text-neutral-900">
-                      {solicitudCreada.servicio_buscado || solicitudCreada.Servicio_Buscado}
-                    </span>
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <span className="text-[11px] text-neutral-400 block">Detalles de necesidad</span>
-                    <p className="text-xs text-neutral-800 leading-relaxed">
-                      {solicitudCreada.detalles_necesidad || solicitudCreada.Detalles_Necesidad}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <div className="space-y-0.5">
-                      <span className="text-[11px] text-neutral-400 block">Presupuesto</span>
-                      <span className="text-xs font-medium text-neutral-800">
-                        {solicitudCreada.presupuesto || solicitudCreada.Presupuesto}
-                      </span>
-                    </div>
-                    <div className="space-y-0.5">
-                      <span className="text-[11px] text-neutral-400 block">Fecha estimado</span>
-                      <span className="text-xs font-medium text-neutral-800">
-                        {solicitudCreada.fecha_estimado || solicitudCreada.Fecha_Estimada}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-0.5 pt-1">
-                    <span className="text-[11px] text-neutral-400 block">Ubicación servicios</span>
-                    <span className="text-xs text-neutral-700">
-                      {solicitudCreada.ubicacion_servicios || solicitudCreada.Ubicacion_Servicio}
-                    </span>
-                  </div>
-
-                  <div className="space-y-0.5 pt-1">
-                    <span className="text-[11px] text-neutral-400 block">Emprendedor asignado</span>
-                    <span className="text-xs text-neutral-700 font-medium">
-                      {solicitudCreada.emprendedor_asignado || (
-                        <span className="italic text-neutral-400">Sin asignar aún (pendiente de coordinación)</span>
-                      )}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-neutral-200">
-                    <span className="text-xs font-medium text-neutral-600">Estado en Firebase</span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-[11px] font-semibold transition ${
-                        (solicitudCreada.estado || solicitudCreada.Estado) === 'Activo'
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                          : (solicitudCreada.estado || solicitudCreada.Estado) === 'En proceso'
-                          ? 'bg-blue-100 text-blue-800 border border-blue-300'
-                          : (solicitudCreada.estado || solicitudCreada.Estado) === 'Completado'
-                          ? 'bg-purple-100 text-purple-800 border border-purple-300'
-                          : 'bg-neutral-200 text-neutral-800'
-                      }`}
-                    >
-                      {solicitudCreada.estado || solicitudCreada.Estado}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Demostración de sobrescritura de información al presionar un botón */}
-              {solicitudCreada && (
-                <div className="p-3 bg-white border border-neutral-200 rounded-xl space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-neutral-800">
-                      Sobrescribir estado en Firestore:
-                    </span>
-                    {actualizandoEstadoSolicitud && (
-                      <RefreshCw size={13} className="animate-spin text-neutral-500" />
+                <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4 space-y-2">
+                  <span className="text-[10px] font-mono font-bold text-neutral-300">
+                    #{solicitudCreada.ID_solicitud || solicitudCreada.ID_Solicitud}
+                  </span>
+                  <h4 className="text-sm font-bold text-neutral-900">
+                    {solicitudCreada.servicio_buscado || solicitudCreada.Servicio_Buscado}
+                  </h4>
+                  <div className="flex items-center gap-2 text-xs text-neutral-500">
+                    {solicitudCreada.presupuesto && <span>{solicitudCreada.presupuesto}</span>}
+                    {solicitudCreada.ubicacion_servicios && (
+                      <span>• {solicitudCreada.ubicacion_servicios}</span>
                     )}
                   </div>
-                  <p className="text-[11px] text-neutral-500">
-                    Al pulsar un botón, la app sobrescribe inmediatamente la misma fila/documento en Firebase manteniendo todo lo demás intacto:
-                  </p>
-                  <div className="grid grid-cols-3 gap-1.5 pt-1">
-                    <button
-                      type="button"
-                      disabled={actualizandoEstadoSolicitud || (solicitudCreada.estado || solicitudCreada.Estado) === 'Pendiente'}
-                      onClick={() => handleCambiarEstadoSolicitud('Pendiente')}
-                      className="px-2 py-1.5 rounded-lg border border-neutral-300 text-[11px] font-medium bg-neutral-50 hover:bg-neutral-100 text-neutral-700 transition disabled:opacity-50 cursor-pointer text-center"
-                    >
-                      Pendiente
-                    </button>
-                    <button
-                      type="button"
-                      disabled={actualizandoEstadoSolicitud || (solicitudCreada.estado || solicitudCreada.Estado) === 'Activo'}
-                      onClick={() => handleCambiarEstadoSolicitud('Activo')}
-                      className="px-2 py-1.5 rounded-lg border border-emerald-300 text-[11px] font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 transition disabled:opacity-50 cursor-pointer text-center"
-                    >
-                      Activo
-                    </button>
-                    <button
-                      type="button"
-                      disabled={actualizandoEstadoSolicitud || (solicitudCreada.estado || solicitudCreada.Estado) === 'En proceso'}
-                      onClick={() => handleCambiarEstadoSolicitud('En proceso')}
-                      className="px-2 py-1.5 rounded-lg border border-blue-300 text-[11px] font-semibold bg-blue-50 hover:bg-blue-100 text-blue-800 transition disabled:opacity-50 cursor-pointer text-center"
-                    >
-                      En proceso
-                    </button>
-                  </div>
-                  {mensajeSobrescritura && (
-                    <div className="text-[11px] text-emerald-700 bg-emerald-50 p-2 rounded-lg border border-emerald-200 animate-in fade-in">
-                      {mensajeSobrescritura}
-                    </div>
-                  )}
                 </div>
               )}
             </div>
 
             <div className="pt-6">
               <button
-                onClick={reiniciar}
+                onClick={() => {
+                  setNavTab('actividad');
+                  setCurrentScreen('principal');
+                }}
                 className="w-full h-11 rounded-full bg-neutral-900 text-white font-medium text-xs hover:bg-neutral-800 transition"
               >
-                Crear otra solicitud
+                Ver en Actividad
               </button>
             </div>
+
+            {/* Slide-up de Blind Matching en tiempo real */}
+            {solicitudCreada && (solicitudCreada.ID_solicitud || solicitudCreada.ID_Solicitud) && (
+              <BlindMatchingSlideUp
+                solicitudId={solicitudCreada.ID_solicitud || solicitudCreada.ID_Solicitud || ''}
+                authUid={authUser?.uid}
+                onClose={() => {
+                  setNavTab('actividad');
+                  setCurrentScreen('principal');
+                }}
+                onIrAActividad={() => {
+                  setNavTab('actividad');
+                  setCurrentScreen('principal');
+                }}
+              />
+            )}
           </div>
         ) : currentScreen === 'perfil_publico' ? (
           /* ============================================================== */

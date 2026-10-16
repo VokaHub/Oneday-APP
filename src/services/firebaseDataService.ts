@@ -20,6 +20,9 @@ import {
   query,
   where,
   limit,
+  onSnapshot,
+  arrayUnion,
+  Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -66,6 +69,7 @@ export interface SolicitudData {
   Estado?: string;
   createdAt?: string;
   updatedAt?: string;
+  emprendedores_rechazados?: string[];
 }
 
 export interface EmprendedorData {
@@ -1164,5 +1168,159 @@ export async function obtenerFavoritosDeFirestore(
   }
 }
 
+/**
+ * Suscribe cambios en tiempo real a un documento de solicitud específico.
+ * Retorna una función de cancelación (unsubscribe).
+ */
+export function suscribirSolicitudEnTiempoReal(
+  solicitudId: string,
+  callback: (solicitud: SolicitudData | null) => void
+): Unsubscribe {
+  const docRef = doc(db, 'solicitudes', solicitudId);
+  return onSnapshot(
+    docRef,
+    (snap) => {
+      if (snap.exists()) {
+        callback(snap.data() as SolicitudData);
+      } else {
+        callback(null);
+      }
+    },
+    (err) => {
+      console.warn('Error en suscripción en tiempo real de solicitud:', err);
+    }
+  );
+}
 
+/**
+ * Emprendedor ACEPTA una solicitud asignada.
+ * Cambia el estado a 'Activo' en Firestore.
+ */
+export async function aceptarSolicitudEmprendedor(
+  solicitudId: string,
+  idEmprendedor: string,
+  nombreEmprendedor: string
+): Promise<void> {
+  const docRef = doc(db, 'solicitudes', solicitudId);
+  await updateDoc(docRef, {
+    ID_emprendedor_asignado: idEmprendedor,
+    emprendedor_asignado: nombreEmprendedor,
+    estado: 'Activo',
+    Estado: 'Activo',
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+/**
+ * Emprendedor RECHAZA una solicitud.
+ * Agrega su ID a emprendedores_rechazados y busca el siguiente emprendedor PRO
+ * disponible que coincida con servicio, ubicación y presupuesto.
+ */
+export async function rechazarSolicitudEmprendedor(
+  solicitudId: string,
+  idEmprendedor: string
+): Promise<{ reasignado: boolean; nuevoEmprendedor?: EmprendedorData }> {
+  const docRef = doc(db, 'solicitudes', solicitudId);
+
+  // Agregar a rechazados
+  await updateDoc(docRef, {
+    emprendedores_rechazados: arrayUnion(idEmprendedor),
+    updatedAt: new Date().toISOString(),
+  });
+
+  // Leer la solicitud actual para encontrar el siguiente emprendedor
+  const snap = await getDoc(docRef);
+  if (!snap.exists()) return { reasignado: false };
+
+  const solicitud = snap.data() as SolicitudData;
+  const rechazados = solicitud.emprendedores_rechazados || [];
+
+  // Buscar siguiente emprendedor PRO disponible
+  const siguiente = await buscarSiguienteEmprendedorPro(
+    solicitud.servicio_buscado,
+    solicitud.ubicacion_servicios,
+    solicitud.presupuesto,
+    rechazados
+  );
+
+  if (siguiente) {
+    await updateDoc(docRef, {
+      ID_emprendedor_asignado: siguiente.ID_Emprendedor,
+      emprendedor_asignado: siguiente.Nombre,
+      updatedAt: new Date().toISOString(),
+    });
+    return { reasignado: true, nuevoEmprendedor: siguiente };
+  }
+
+  // No hay más emprendedores disponibles: marcar como Pendiente sin asignación
+  await updateDoc(docRef, {
+    ID_emprendedor_asignado: '',
+    emprendedor_asignado: '',
+    estado: 'Pendiente',
+    Estado: 'Pendiente',
+    updatedAt: new Date().toISOString(),
+  });
+  return { reasignado: false };
+}
+
+/**
+ * Busca el siguiente emprendedor PRO disponible que coincida con el servicio,
+ * ubicación y presupuesto de la solicitud, excluyendo los ya rechazados.
+ */
+export async function buscarSiguienteEmprendedorPro(
+  servicioBuscado: string,
+  ubicacion: string,
+  presupuesto: string,
+  rechazados: string[]
+): Promise<EmprendedorData | null> {
+  try {
+    const colRef = collection(db, 'emprendedores');
+    const snap = await getDocs(colRef);
+
+    if (snap.empty) return null;
+
+    const candidatos: EmprendedorData[] = [];
+    snap.forEach((d) => {
+      const data = d.data() as EmprendedorData;
+      const nivel = (data.Nivel || (data as any).nivel || '').toUpperCase().trim();
+      const estado = (data.Estado_Aprobacion || '').toLowerCase().trim();
+      const servicio = (data.Servicio || '').toLowerCase().trim();
+
+      // Debe ser PRO, estar aprobado, no estar en rechazados, y tener servicio compatible
+      if (
+        (nivel === 'PRO' || estado === 'aprobado' || estado === 'aprobada') &&
+        !rechazados.includes(data.ID_Emprendedor) &&
+        servicio &&
+        servicioBuscado &&
+        servicio.includes(servicioBuscado.toLowerCase().trim())
+      ) {
+        // Filtro opcional por ubicación (match parcial)
+        if (ubicacion && ubicacion.trim() && ubicacion.toLowerCase() !== 'remoto') {
+          const ubiEmp = (data.Ubicacion || '').toLowerCase();
+          const ubiSol = ubicacion.toLowerCase().trim();
+          if (ubiEmp && !ubiEmp.includes(ubiSol) && !ubiSol.includes(ubiEmp)) {
+            return;
+          }
+        }
+        candidatos.push(data);
+      }
+    });
+
+    if (candidatos.length === 0) return null;
+    return candidatos[0];
+  } catch (err) {
+    console.warn('Error al buscar siguiente emprendedor PRO:', err);
+    return null;
+  }
+}
+
+/**
+ * Obtiene los datos de un emprendedor por su ID_Emprendedor para mostrar
+ * foto y nombre en la tarjeta del cliente.
+ */
+export async function obtenerEmprendedorParaMatch(
+  idEmprendedor: string
+): Promise<EmprendedorData | null> {
+  return obtenerEmprendedorPorId(idEmprendedor);
+}
 
