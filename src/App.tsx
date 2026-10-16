@@ -100,6 +100,7 @@ import { AuthModal } from './components/AuthModal';
 import { MatchingCardCliente } from './components/MatchingCardCliente';
 import { MatchingCardEmprendedor } from './components/MatchingCardEmprendedor';
 import { BlindMatchingSlideUp } from './components/BlindMatchingSlideUp';
+import ImpulsoTermsView from './views/ImpulsoTermsView';
 
 const WhatsAppIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -3803,41 +3804,11 @@ export default function App() {
           /* ============================================================== */
           /* PANTALLA EN BLANCO: TÉRMINOS Y CONDICIONES (IMPULSA TU PERFIL) */
           /* ============================================================== */
-          <div className="flex-1 flex flex-col justify-between py-4 animate-in fade-in duration-150 bg-white min-h-[520px]">
-            <div>
-              <header className="flex items-center gap-3 pt-1 pb-4">
-                <button
-                  type="button"
-                  onClick={() => setCurrentScreen('principal')}
-                  className="w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-neutral-700 transition cursor-pointer"
-                  title="Volver"
-                >
-                  <ArrowLeft size={18} />
-                </button>
-              </header>
-
-              <div className="pt-6">
-                <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">
-                  Términos y condiciones
-                </h1>
-              </div>
-            </div>
-
-            <div className="pt-12 pb-4">
-              <button
-                type="button"
-                onClick={handleAceptarTerminosImpulso}
-                disabled={guardandoTerminosImpulso}
-                className="w-full py-4 rounded-full bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-400 text-white font-semibold text-xs transition cursor-pointer shadow-xs active:scale-98 flex items-center justify-center gap-2"
-              >
-                {guardandoTerminosImpulso ? (
-                  <RefreshCw size={14} className="animate-spin text-white" />
-                ) : (
-                  <span>Aceptar</span>
-                )}
-              </button>
-            </div>
-          </div>
+          <ImpulsoTermsView
+            onBack={() => setCurrentScreen('principal')}
+            onAccept={handleAceptarTerminosImpulso}
+            isSaving={guardandoTerminosImpulso}
+          />
         ) : (
           /* ============================================================== */
           /* PANTALLA: TÉRMINOS Y CONDICIONES (EN BLANCO)                   */

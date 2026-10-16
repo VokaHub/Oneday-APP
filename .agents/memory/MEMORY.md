@@ -1,0 +1,1 @@
+- [Bun lockfile installation behavior](bun-lockfile-compatibility.md) — Bun 1.3 cannot read this imported v2 lockfile; its installer rewrites it and adds the Bun module to `.replit`.
