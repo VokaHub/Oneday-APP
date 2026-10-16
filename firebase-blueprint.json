@@ -1,0 +1,355 @@
+{
+  "entities": {
+    "Cliente": {
+      "title": "Cliente",
+      "description": "Perfil del cliente registrado en One Day",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID del cliente"
+        },
+        "ID_cliente": {
+          "type": "string",
+          "description": "ID único público del cliente (ej. CLI-1001)"
+        },
+        "nombre": {
+          "type": "string",
+          "description": "Nombre completo del cliente"
+        },
+        "correo": {
+          "type": "string",
+          "description": "Correo electrónico del cliente"
+        },
+        "telefono": {
+          "type": "string",
+          "description": "Número de teléfono con prefijo +502"
+        },
+        "foto": {
+          "type": "string",
+          "description": "Foto de perfil optimizada o URL"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Fecha y hora de creación"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Fecha y hora de última actualización"
+        }
+      },
+      "required": ["uid", "ID_cliente", "nombre", "correo", "telefono"]
+    },
+    "Solicitud": {
+      "title": "Solicitud",
+      "description": "Solicitud de servicio requerida por un cliente",
+      "type": "object",
+      "properties": {
+        "ID_solicitud": {
+          "type": "string",
+          "description": "ID numérico único de la solicitud (ej. 49210)"
+        },
+        "ID_cliente": {
+          "type": "string",
+          "description": "ID único del cliente que solicita"
+        },
+        "servicio_buscado": {
+          "type": "string",
+          "description": "Nombre del servicio solicitado"
+        },
+        "detalles_necesidad": {
+          "type": "string",
+          "description": "Descripción detallada de la necesidad del cliente"
+        },
+        "detalle_necesidad": {
+          "type": "string",
+          "description": "Sinónimo de detalles_necesidad para compatibilidad"
+        },
+        "presupuesto": {
+          "type": "string",
+          "description": "Presupuesto aproximado en Quetzales (Q)"
+        },
+        "ubicacion_servicios": {
+          "type": "string",
+          "description": "Ubicación geográfica o cobertura requerida"
+        },
+        "fecha_estimado": {
+          "type": "string",
+          "description": "Fecha estimada para la realización del servicio"
+        },
+        "ID_emprendedor_asignado": {
+          "type": "string",
+          "description": "ID del emprendedor asignado a la solicitud"
+        },
+        "emprendedor_asignado": {
+          "type": "string",
+          "description": "Nombre del emprendedor asignado a la solicitud"
+        },
+        "estado": {
+          "type": "string",
+          "description": "Estado actual de la solicitud (ej. Pendiente, Activo, En proceso, Completado, Cancelado)"
+        },
+        "cliente_nombre": {
+          "type": "string",
+          "description": "Nombre del cliente para contacto directo"
+        },
+        "cliente_telefono": {
+          "type": "string",
+          "description": "Teléfono del cliente para contacto directo"
+        },
+        "cliente_correo": {
+          "type": "string",
+          "description": "Correo del cliente para contacto directo"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Fecha y hora de creación"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Fecha y hora de última actualización de estado o asignación"
+        }
+      },
+      "required": [
+        "ID_solicitud",
+        "ID_cliente",
+        "servicio_buscado",
+        "detalles_necesidad",
+        "presupuesto",
+        "ubicacion_servicios",
+        "fecha_estimado",
+        "estado"
+      ]
+    },
+    "Emprendedor": {
+      "title": "Emprendedor",
+      "description": "Registro de emprendedor verificado en One Day",
+      "type": "object",
+      "properties": {
+        "ID_Emprendedor": {
+          "type": "string",
+          "description": "Identificador único de emprendedor (ej. EMP-1001)"
+        },
+        "uid": {
+          "type": "string",
+          "description": "UID de Firebase Auth del usuario"
+        },
+        "Nombre": {
+          "type": "string",
+          "description": "Nombre completo del profesional o emprendedor"
+        },
+        "Correo": {
+          "type": "string",
+          "description": "Correo electrónico del emprendedor"
+        },
+        "Telefono": {
+          "type": "string",
+          "description": "Número telefónico de contacto (+502)"
+        },
+        "Foto": {
+          "type": "string",
+          "description": "Foto de perfil del emprendedor"
+        },
+        "Categoria": {
+          "type": "string",
+          "description": "Categoría principal de servicio"
+        },
+        "Servicio": {
+          "type": "string",
+          "description": "Servicio específico ofrecido"
+        },
+        "Ubicacion": {
+          "type": "string",
+          "description": "Ubicación o cobertura en Guatemala"
+        },
+        "Modalidad": {
+          "type": "string",
+          "description": "Modalidad de atención: Presencial, Remota o Híbrida"
+        },
+        "Rango_Precios": {
+          "type": "string",
+          "description": "Rango de precios ofrecido por el emprendedor"
+        },
+        "Documento_Identificacion": {
+          "type": "string",
+          "description": "Referencia al documento de identificación DPI"
+        },
+        "CV": {
+          "type": "string",
+          "description": "Curriculum vitae o enlace profesional"
+        },
+        "Portafolio": {
+          "type": "string",
+          "description": "Enlace a portafolio o catálogo de trabajos"
+        },
+        "Numero_Colegiado_Licencia": {
+          "type": "string",
+          "description": "Número de colegiado activo o licencia comercial si aplica"
+        },
+        "Estado_Aprobacion": {
+          "type": "string",
+          "description": "Estado de verificación (ej. en revisión, aprobado, denegado)"
+        },
+        "Nivel": {
+          "type": "string",
+          "description": "Nivel del emprendedor (ej. Básico, Verificado, PRO)"
+        },
+        "Fecha_PRO": {
+          "type": "string",
+          "description": "Fecha de acreditación PRO"
+        },
+        "fecha_pro": {
+          "type": "string",
+          "description": "Fecha en la que el emprendedor presionó pasar a OneDay Pro (vigencia de 31 días + 1)"
+        },
+        "Biografia": {
+          "type": "string",
+          "description": "Biografía o descripción profesional del emprendedor"
+        },
+        "biografia": {
+          "type": "string",
+          "description": "Biografía o descripción profesional del emprendedor"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Fecha de solicitud"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Fecha de actualización de estado"
+        }
+      },
+      "required": [
+        "ID_Emprendedor",
+        "Nombre",
+        "Correo",
+        "Telefono",
+        "Categoria",
+        "Servicio",
+        "Estado_Aprobacion"
+      ]
+    },
+    "Resena": {
+      "title": "Resena",
+      "description": "Reseña y calificación en estrellas dejada por un cliente hacia un emprendedor verificado",
+      "type": "object",
+      "properties": {
+        "ID_reseña": {
+          "type": "string",
+          "description": "Identificador único de la reseña"
+        },
+        "ID_Emprendedor": {
+          "type": "string",
+          "description": "ID del emprendedor al que pertenece la reseña"
+        },
+        "nombre_cliente": {
+          "type": "string",
+          "description": "Nombre del cliente que deja la reseña"
+        },
+        "estrellas": {
+          "type": "number",
+          "description": "Calificación numérica de 1 a 5 estrellas"
+        },
+        "comentario": {
+          "type": "string",
+          "description": "Texto u opinión de la reseña"
+        },
+        "fecha": {
+          "type": "string",
+          "description": "Fecha legible de publicación"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp ISO de creación"
+        }
+      },
+      "required": ["ID_reseña", "ID_Emprendedor", "nombre_cliente", "estrellas", "comentario"]
+    },
+    "Biografia": {
+      "title": "Biografia",
+      "description": "Biografía o presentación profesional del emprendedor guardada en Firebase por su ID",
+      "type": "object",
+      "properties": {
+        "idEmprendedor": {
+          "type": "string",
+          "description": "ID único del emprendedor asociado a la biografía"
+        },
+        "texto": {
+          "type": "string",
+          "description": "Texto de la biografía"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Fecha y hora de actualización"
+        }
+      },
+      "required": ["idEmprendedor", "texto"]
+    },
+    "CatalogoItem": {
+      "title": "CatalogoItem",
+      "description": "Ítem o producto de catálogo de emprendedor almacenado en Firestore",
+      "type": "object",
+      "properties": {
+        "idItem": {
+          "type": "string",
+          "description": "Identificador único del ítem de catálogo"
+        },
+        "idEmprendedor": {
+          "type": "string",
+          "description": "ID del emprendedor al que pertenece el catálogo"
+        },
+        "nombre": {
+          "type": "string",
+          "description": "Nombre del producto o servicio"
+        },
+        "precio": {
+          "type": "string",
+          "description": "Precio en Quetzales del producto o servicio"
+        },
+        "descripcion": {
+          "type": "string",
+          "description": "Descripción detallada del producto o servicio"
+        },
+        "foto": {
+          "type": "string",
+          "description": "Foto o imagen del producto"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Fecha y hora de creación"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Fecha y hora de última actualización"
+        }
+      },
+      "required": ["idItem", "idEmprendedor", "nombre", "precio"]
+    }
+  },
+  "firestore": {
+    "/clientes/{userId}": {
+      "schema": "Cliente",
+      "description": "Perfil del cliente indexado por su UID de autenticación"
+    },
+    "/solicitudes/{solicitudId}": {
+      "schema": "Solicitud",
+      "description": "Solicitudes creadas por clientes y gestionadas por estado"
+    },
+    "/emprendedores/{emprendedorId}": {
+      "schema": "Emprendedor",
+      "description": "Colección de emprendedores y profesionales verificados de One Day"
+    },
+    "/resenas/{resenaId}": {
+      "schema": "Resena",
+      "description": "Reseñas públicas de clientes hacia emprendedores verificados"
+    },
+    "/biografias/{idEmprendedor}": {
+      "schema": "Biografia",
+      "description": "Biografías oficiales de emprendedores identificadas por su ID"
+    },
+    "/catalogos/{itemId}": {
+      "schema": "CatalogoItem",
+      "description": "Colección de ítems de catálogo de emprendedores identificados por su ID de emprendedor y propio ID de ítem"
+    }
+  }
+}

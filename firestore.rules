@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Coleccion de clientes (perfil personal del cliente autenticado y lectura para solicitudes)
+    match /clientes/{userId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Coleccion de solicitudes de servicio
+    match /solicitudes/{solicitudId} {
+      allow read, create, update: if true;
+      allow delete: if isSignedIn();
+    }
+
+    // Coleccion de emprendedores de One Day (lectura publica y escritura autenticada)
+    match /emprendedores/{emprendedorId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Coleccion de resenas de clientes hacia emprendedores
+    match /resenas/{resenaId} {
+      allow read, create: if true;
+      allow update, delete: if isSignedIn();
+    }
+
+    // Coleccion legado de catalogo
+    match /servicios_catalogo/{docId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Coleccion de biografias de emprendedores
+    match /biografias/{idEmprendedor} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Coleccion de catalogos de emprendedores (100% Firestore)
+    match /catalogos/{itemId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Coleccion de favoritos de usuarios
+    match /favoritos/{favId} {
+      allow read, write: if true;
+    }
+
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+  }
+}

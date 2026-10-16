@@ -1,0 +1,7 @@
+{
+  "name": "One Day",
+  "description": "Plataforma web móvil para conectar solicitudes de clientes con emprendedores en Guatemala.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

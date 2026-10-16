@@ -1,0 +1,12 @@
+{
+  "projectId": "oneday-webapp",
+  "appId": "1:830935487192:web:7b301ee1df1b06fe65fdad",
+  "apiKey": "AIzaSyBmNmM-QkW7JkI8FkpZJxh2mye2UjNa7sk",
+  "authDomain": "oneday-webapp.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "oneday-webapp.firebasestorage.app",
+  "messagingSenderId": "830935487192",
+  "measurementId": "G-X7W64SFC5T",
+  "oAuthClientId": "",
+  "recaptchaSiteKey": ""
+}
