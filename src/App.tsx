@@ -100,6 +100,8 @@ import { AuthModal } from './components/AuthModal';
 import { MatchingCardCliente } from './components/MatchingCardCliente';
 import { MatchingCardEmprendedor } from './components/MatchingCardEmprendedor';
 import { BlindMatchingSlideUp } from './components/BlindMatchingSlideUp';
+import { ResenasCarrusel } from './components/common/ResenasCarrusel';
+import ImpulsoTermsView from './views/ImpulsoTermsView';
 
 const WhatsAppIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -234,77 +236,6 @@ export const GrayVerifiedBadge = ({ size = 20 }: { size?: number }) => (
     />
   </svg>
 );
-
-// Componente interactivo de carrusel de reseñas super sutil y minimalista
-function ResenasCarrusel({
-  resenas,
-  sinResenasMensaje,
-}: {
-  resenas: ResenaData[];
-  sinResenasMensaje?: string;
-}) {
-  const [indice, setIndice] = useState(0);
-
-  useEffect(() => {
-    if (resenas.length <= 1) return;
-    const intervalo = setInterval(() => {
-      setIndice((prev) => (prev + 1) % resenas.length);
-    }, 4500);
-    return () => clearInterval(intervalo);
-  }, [resenas.length]);
-
-  if (!resenas || resenas.length === 0) {
-    return null;
-  }
-
-  const resenaActual = resenas[indice] || resenas[0];
-
-  return (
-    <div className="bg-neutral-50/90 border border-neutral-200/60 rounded-2xl p-4 text-left space-y-2.5 transition-all">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((estrella) => (
-            <Star
-              key={estrella}
-              size={11}
-              className={
-                estrella <= (resenaActual.estrellas || 5)
-                  ? 'fill-neutral-900 text-neutral-900'
-                  : 'text-neutral-200'
-              }
-            />
-          ))}
-        </div>
-
-        {resenas.length > 1 && (
-          <div className="flex items-center gap-1 shrink-0">
-            {resenas.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setIndice(idx)}
-                className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                  indice === idx ? 'w-3.5 bg-neutral-800' : 'w-1.5 bg-neutral-300'
-                }`}
-                aria-label={`Reseña ${idx + 1}`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      <p className="text-xs text-neutral-700 leading-relaxed italic">
-        “{resenaActual.comentario}”
-      </p>
-
-      <div className="pt-1 border-t border-neutral-200/50 flex items-center justify-between">
-        <span className="text-[11px] font-semibold text-neutral-900 truncate">
-          {resenaActual.nombre_cliente}
-        </span>
-      </div>
-    </div>
-  );
-}
 
 export type ProductoEmprendedor = CatalogoItemData;
 
@@ -3803,41 +3734,11 @@ export default function App() {
           /* ============================================================== */
           /* PANTALLA EN BLANCO: TÉRMINOS Y CONDICIONES (IMPULSA TU PERFIL) */
           /* ============================================================== */
-          <div className="flex-1 flex flex-col justify-between py-4 animate-in fade-in duration-150 bg-white min-h-[520px]">
-            <div>
-              <header className="flex items-center gap-3 pt-1 pb-4">
-                <button
-                  type="button"
-                  onClick={() => setCurrentScreen('principal')}
-                  className="w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center text-neutral-700 transition cursor-pointer"
-                  title="Volver"
-                >
-                  <ArrowLeft size={18} />
-                </button>
-              </header>
-
-              <div className="pt-6">
-                <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">
-                  Términos y condiciones
-                </h1>
-              </div>
-            </div>
-
-            <div className="pt-12 pb-4">
-              <button
-                type="button"
-                onClick={handleAceptarTerminosImpulso}
-                disabled={guardandoTerminosImpulso}
-                className="w-full py-4 rounded-full bg-neutral-900 hover:bg-neutral-800 disabled:bg-neutral-400 text-white font-semibold text-xs transition cursor-pointer shadow-xs active:scale-98 flex items-center justify-center gap-2"
-              >
-                {guardandoTerminosImpulso ? (
-                  <RefreshCw size={14} className="animate-spin text-white" />
-                ) : (
-                  <span>Aceptar</span>
-                )}
-              </button>
-            </div>
-          </div>
+          <ImpulsoTermsView
+            onBack={() => setCurrentScreen('principal')}
+            onAccept={handleAceptarTerminosImpulso}
+            isSaving={guardandoTerminosImpulso}
+          />
         ) : (
           /* ============================================================== */
           /* PANTALLA: TÉRMINOS Y CONDICIONES (EN BLANCO)                   */
